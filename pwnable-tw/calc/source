@@ -1,0 +1,177 @@
+
+void main(void) {
+  signal(0xe,timeout);
+  alarm(0x3c);
+  puts("=== Welcome to SECPROG calculator ===");
+  fflush((FILE *)stdout);
+  calc();
+  puts("Merry Christmas!");
+  return;
+}
+
+
+void calc(void) {
+  int iVar1;
+  int bytes_read;
+  int in_GS_OFFSET;
+  int num_count;
+  int numbers [100];
+  char buf [1024];
+  
+  iVar1 = *(int *)(in_GS_OFFSET + 0x14);
+  while( true ) {
+    bzero(buf,0x400);
+    bytes_read = get_expr(buf,0x400);
+    if (bytes_read == 0) break;
+    init_pool(&num_count);
+    bytes_read = parse_expr(buf,(char)&num_count);
+    if (bytes_read != 0) {
+      printf("%d\n",numbers[num_count + -1]);
+      fflush((FILE *)stdout);
+    }
+  }
+  if (iVar1 == *(int *)(in_GS_OFFSET + 0x14)) {
+    return;
+  }
+                    /* WARNING: Subroutine does not return */
+  __stack_chk_fail();
+}
+
+int get_expr(char *buf,int max_bytes)
+
+{
+  ssize_t read_bytes;
+  char user_input;
+  int count;
+  
+  count = 0;
+  while (count < max_bytes) {
+    read_bytes = read(0,&user_input,1);
+    if ((read_bytes == -1) || (user_input == '\n')) break;
+    if ((((user_input == '+') ||
+         (((user_input == '-' || (user_input == '*')) || (user_input == '/')))) ||
+        (user_input == '%')) || (('/' < user_input && (user_input < ':')))) {
+      buf[count] = user_input;
+      count = count + 1;
+    }
+  }
+  buf[count] = '\0';
+  return count;
+}
+
+
+undefined4 parse_expr(char *buf,undefined num_struct)
+
+{
+  char *__s1;
+  undefined4 uVar1;
+  int num;
+  char *__n;
+  int in_GS_OFFSET;
+  undefined3 in_stack_00000009;
+  char *buf_scan_ptr;
+  int index;
+  int local_84;
+  char local_74 [100];
+  int local_10;
+  int curr_count;
+  
+  local_10 = *(int *)(in_GS_OFFSET + 0x14);
+  buf_scan_ptr = buf;
+  local_84 = 0;
+  bzero(local_74,100);
+  index = 0;
+  do {
+    if (9 < (int)buf[index] - 0x30U) {
+      __n = buf + (index - (int)buf_scan_ptr);
+      __s1 = (char *)malloc((size_t)(__n + 1));
+      memcpy(__s1,buf_scan_ptr,(size_t)__n);
+      __s1[(int)__n] = '\0';
+      num = strcmp(__s1,"0");
+      if (num == 0) {
+        puts("prevent division by zero");
+        fflush((FILE *)stdout);
+        uVar1 = 0;
+        goto LAB_0804935f;
+      }
+      num = atoi(__s1);
+      if (0 < num) {
+        curr_count = *_num_struct;
+        *_num_struct = curr_count + 1;
+        _num_struct[curr_count + 1] = num;
+      }
+      if ((buf[index] != '\0') && (9 < (int)buf[index + 1] - 0x30U)) {
+        puts("expression error!");
+        fflush((FILE *)stdout);
+        uVar1 = 0;
+        goto LAB_0804935f;
+      }
+      buf_scan_ptr = buf + index + 1;
+      if (local_74[local_84] == '\0') {
+        local_74[local_84] = buf[index];
+      }
+      else {
+        switch(buf[index]) {
+        case '%':
+        case '*':
+        case '/':
+          if ((local_74[local_84] == '+') || (local_74[local_84] == '-')) {
+            local_74[local_84 + 1] = buf[index];
+            local_84 = local_84 + 1;
+          }
+          else {
+            eval(num_struct,local_74[local_84]);
+            local_74[local_84] = buf[index];
+          }
+          break;
+        default:
+          eval(num_struct,local_74[local_84]);
+          local_84 = local_84 + -1;
+          break;
+        case '+':
+        case '-':
+          eval(num_struct,local_74[local_84]);
+          local_74[local_84] = buf[index];
+        }
+      }
+      if (buf[index] == '\0') {
+        for (; -1 < local_84; local_84 = local_84 + -1) {
+          eval(num_struct,local_74[local_84]);
+        }
+        uVar1 = 1;
+LAB_0804935f:
+        if (local_10 != *(int *)(in_GS_OFFSET + 0x14)) {
+                    /* WARNING: Subroutine does not return */
+          __stack_chk_fail();
+        }
+        return uVar1;
+      }
+    }
+    index = index + 1;
+  } while( true );
+}
+
+
+
+void eval(undefined num_struct,char op)
+
+{
+  undefined3 in_stack_00000005;
+  
+  if (op == '+') {
+    _num_struct[*_num_struct + -1] = _num_struct[*_num_struct + -1] + _num_struct[*_num_struct];
+  }
+  else if (op < ',') {
+    if (op == '*') {
+      _num_struct[*_num_struct + -1] = _num_struct[*_num_struct + -1] * _num_struct[*_num_struct];
+    }
+  }
+  else if (op == '-') {
+    _num_struct[*_num_struct + -1] = _num_struct[*_num_struct + -1] - _num_struct[*_num_struct];
+  }
+  else if (op == '/') {
+    _num_struct[*_num_struct + -1] = _num_struct[*_num_struct + -1] / _num_struct[*_num_struct];
+  }
+  *_num_struct = *_num_struct + -1;
+  return;
+}

@@ -1,0 +1,20 @@
+#include <stdlib.h>
+
+int main() {
+    char* p;
+
+    char buf[0x70] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x41};
+    buf[12+0x40-4] = 0x20;
+    //buf[12+0x40] = 0x20;
+
+    malloc(0x3c);
+    
+    free(&buf[12]);
+
+    p = malloc(0x3c);
+    for (int i = 0; i < 0x40; i++)
+        p[i] = "a";
+
+    return 0;
+}
+
