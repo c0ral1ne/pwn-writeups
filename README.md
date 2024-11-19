@@ -8,6 +8,7 @@ List of included CTFs:
 
 * pwnable.tw
 * 1337UP 2024
+* BlockCTF 2024
 
 What tools I use:
 
