@@ -10,3 +10,4 @@ List of included CTFs:
 * 1337UP 2024
 * BlockCTF 2024
 * niteCTF 2024
+* VuwCTF 2025
